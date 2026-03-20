@@ -8,9 +8,12 @@ tap.test("POST /tasks", async (t) => {
     title: "New Task",
     description: "New Task Description",
     completed: false,
+    priority: "high",
   };
   const response = await server.post("/tasks").send(newTask);
   t.equal(response.status, 201);
+  t.equal(response.body.priority, "high");
+  t.ok(response.body.createdAt);
   t.end();
 });
 
@@ -34,6 +37,30 @@ tap.test("GET /tasks", async (t) => {
   t.type(response.body[0].title, "string");
   t.type(response.body[0].description, "string");
   t.type(response.body[0].completed, "boolean");
+  t.end();
+});
+
+tap.test("GET /tasks?completed=true", async (t) => {
+  const response = await server.get("/tasks?completed=true");
+  t.equal(response.status, 200);
+  t.ok(Array.isArray(response.body));
+  response.body.forEach((task) => t.equal(task.completed, true));
+  t.end();
+});
+
+tap.test("GET /tasks?priority=medium", async (t) => {
+  const response = await server.get("/tasks?priority=medium");
+  t.equal(response.status, 200);
+  t.ok(Array.isArray(response.body));
+  response.body.forEach((task) => t.equal(task.priority, "medium"));
+  t.end();
+});
+
+tap.test("GET /tasks/priority/high", async (t) => {
+  const response = await server.get("/tasks/priority/high");
+  t.equal(response.status, 200);
+  t.ok(Array.isArray(response.body));
+  response.body.forEach((task) => t.equal(task.priority, "high"));
   t.end();
 });
 
